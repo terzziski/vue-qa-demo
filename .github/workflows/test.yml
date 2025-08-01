@@ -1,0 +1,45 @@
+name: CI - Run Cypress & API Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      xvfb:
+        image: cypress/browsers:node16.17.0-chrome106-ff106
+        options: --privileged
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 📦 Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📁 Install backend dependencies
+        working-directory: ./api-server
+        run: npm install
+
+      - name: 🧪 Run API tests (Jest + Supertest)
+        working-directory: ./api-server
+        run: npm test
+
+      - name: 📁 Install frontend dependencies
+        working-directory: ./vue-qa-demo
+        run: npm install
+
+      - name: ⚙️ Start backend (in background)
+        working-directory: ./api-server
+        run: |
+          npm install
+          npm start &
+        shell: bash
+
+      - name: 🧪 Run Cypress UI tests
+        working-directory: ./vue-qa-demo
+        run: npx cypress run
