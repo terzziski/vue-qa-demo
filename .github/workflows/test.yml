@@ -26,7 +26,6 @@ jobs:
         run: npm test
 
       - name: 📁 Install frontend dependencies
-        working-directory: ./vue-qa-demo
         run: npm install
 
       - name: ⚙️ Start backend server
@@ -38,6 +37,5 @@ jobs:
       - name: 🧪 Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
-          working-directory: ./vue-qa-demo
           start: npm run serve
           wait-on: http://localhost:8080
