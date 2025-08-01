@@ -7,10 +7,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      xvfb:
-        image: cypress/browsers:node16.17.0-chrome106-ff106
-        options: --privileged
 
     steps:
       - name: ⬇️ Checkout code
@@ -25,7 +21,7 @@ jobs:
         working-directory: ./api-server
         run: npm install
 
-      - name: 🧪 Run API tests (Jest + Supertest)
+      - name: 🧪 Run API tests
         working-directory: ./api-server
         run: npm test
 
@@ -33,13 +29,15 @@ jobs:
         working-directory: ./vue-qa-demo
         run: npm install
 
-      - name: ⚙️ Start backend (in background)
+      - name: ⚙️ Start backend server
         working-directory: ./api-server
         run: |
-          npm install
-          npm start &
+          nohup npm start &
         shell: bash
 
-      - name: 🧪 Run Cypress UI tests
-        working-directory: ./vue-qa-demo
-        run: npx cypress run
+      - name: 🧪 Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./vue-qa-demo
+          start: npm run serve
+          wait-on: http://localhost:8080
